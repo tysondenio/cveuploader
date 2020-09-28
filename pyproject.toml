@@ -2,7 +2,7 @@
 name = "cveuploader"
 version = "0.1.0"
 description = ""
-authors = ["= <tyson@onna.com>"]
+authors = ["Tyson Denio <tyson@onna.com>"]
 
 [tool.poetry.dependencies]
 python = "^3.8"
