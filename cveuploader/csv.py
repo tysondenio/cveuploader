@@ -14,7 +14,6 @@ def convert_csv_to_stories(
 ) -> List[CHStory]:
     with open(csv_path, "r") as csv_file:
         reader = csv.DictReader(csv_file)
-
         mapping_dict = mapping.dict(exclude_none=True)
         for key, value in mapping_dict.items():
             if value not in cast(List, reader.fieldnames):
@@ -22,19 +21,20 @@ def convert_csv_to_stories(
                     f"Unable to map CSV to Clubhouse Story\n{value} is not a valid column for {key}"
                 )
                 raise RuntimeError()
-
+        descriptions = []
         stories: List[CHStory] = []
-
         for row in reader:
-            stories.append(
-                CHStory(
-                    name=get_value_by_mapping(name=mapping.name, row=row),
-                    description=get_value_by_mapping(name=mapping.description, row=row),
-                    project_id=project_id,
-                    epic_id=epic_id,
+            description = get_value_by_mapping(name=mapping.description, row=row)
+            if description not in descriptions:
+                stories.append(
+                    CHStory(
+                        name=get_value_by_mapping(name=mapping.name, row=row),
+                        description=description,
+                        project_id=project_id,
+                        epic_id=epic_id,
+                    )
                 )
-            )
-
+                descriptions.append(description)
         return stories
 
 
