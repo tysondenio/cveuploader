@@ -11,6 +11,7 @@ class CHStory(pydantic.BaseModel):
     name: str
     project_id: str
 
+    app_url: Optional[str]
     id: Optional[str]
     description: Optional[str]
     epic_id: Optional[str]

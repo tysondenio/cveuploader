@@ -1,9 +1,9 @@
 from .clubhouse import ClubhouseClient
 from .csv import convert_csv_to_stories
 from .settings import Settings
-from .types import CSVStoryMapping
+from .types import CSVStoryMapping, CHStory
 from pathlib import Path
-from typing import Optional
+from typing import Optional, List
 
 import asyncio
 import click
@@ -29,12 +29,14 @@ def cli(env_file: Optional[str]):
 @click.argument("epic-id", type=str, required=True)
 @click.argument("project-id", type=str, required=True)
 @click.option("-n", "--name-field", type=str, default=None)
+@click.option("-p", "--github-print", type=bool, default=False, is_flag=True)
 @click.option("--dry-run", type=bool, default=False, is_flag=True)
 def upload_csv(
     csv_file: str,
     epic_id: str,
     project_id: str,
     name_field: Optional[str] = None,
+    github_print: bool = False,
     dry_run: bool = False,
 ):
 
@@ -57,14 +59,26 @@ def upload_csv(
 
         return
 
-    logger.info("Uploading stories to Clubhouse")
-    client = ClubhouseClient(api_key=settings.clubhouse_token)
+    async def _upload_stories(
+        settings: Settings, stories: List[CHStory]
+    ) -> List[CHStory]:
+        client = ClubhouseClient(api_key=settings.clubhouse_token)
 
-    uploaded_stories = asyncio.run(client.create_stories(data=stories))
+        uploaded_stories = await client.create_stories(data=stories)
+        await client.close()
+
+        return uploaded_stories
+
+    logger.info("Uploading stories to Clubhouse")
+    uploaded_stories = asyncio.run(_upload_stories(settings=settings, stories=stories))
     logger.info(f"Uploaded {len(uploaded_stories)} to Clubhouse")
 
     for story in uploaded_stories:
         logger.info(f"Created story {story.id} - {story.name}")
+
+    if github_print is True:
+        for story in uploaded_stories:
+            print(f"[ch-{story.id}] [{story.name}]({story.app_url})")
 
 
 @click.command()
