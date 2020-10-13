@@ -5,7 +5,6 @@ import pydantic
 
 class CSVStoryMapping(pydantic.BaseModel):
     name: Optional[str] = None
-    description: Optional[str] = None
 
 
 class CHStory(pydantic.BaseModel):

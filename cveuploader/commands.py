@@ -29,14 +29,12 @@ def cli(env_file: Optional[str]):
 @click.argument("epic-id", type=str, required=True)
 @click.argument("project-id", type=str, required=True)
 @click.option("-n", "--name-field", type=str, default=None)
-@click.option("-d", "--description-field", type=str, default=None)
 @click.option("--dry-run", type=bool, default=False, is_flag=True)
 def upload_csv(
     csv_file: str,
     epic_id: str,
     project_id: str,
     name_field: Optional[str] = None,
-    description_field: Optional[str] = None,
     dry_run: bool = False,
 ):
 
@@ -44,7 +42,7 @@ def upload_csv(
 
     logger.info(f"Converting {csv_file} to Clubhouse Stories")
     # Create CSV to Story mapping
-    mapping = CSVStoryMapping(name=name_field, description=description_field)
+    mapping = CSVStoryMapping(name=name_field)
 
     stories = convert_csv_to_stories(
         csv_path=Path(csv_file), mapping=mapping, project_id=project_id, epic_id=epic_id
